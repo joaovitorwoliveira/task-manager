@@ -4,6 +4,7 @@ import * as z from "zod";
 
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 import { LoginSchema } from "../../schemas";
 import { Input } from "@/components/ui/input";
@@ -15,13 +16,11 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-
 import { CardWrapper } from "./card-wrapper";
 import { Button } from "@/components/ui/button";
 import { FormError } from "../form-error";
 import { FormSuccess } from "../form-success";
 import { login } from "@/actions/login";
-import Link from "next/link";
 
 export const LoginForm = () => {
   const [error, setError] = useState<string | undefined>("");
@@ -29,7 +28,7 @@ export const LoginForm = () => {
   const [isPending, startTransition] = useTransition();
 
   const form = useForm<z.infer<typeof LoginSchema>>({
-    // resolver: zodResolver(LoginSchema),
+    resolver: zodResolver(LoginSchema),
     defaultValues: {
       email: "",
       password: "",
@@ -40,26 +39,26 @@ export const LoginForm = () => {
     setError("");
     setSuccess("");
 
-    // startTransition(() => {
-    //   login(values)
-    //     .then((data) => {
-    //       if (data?.error) {
-    //         form.reset();
-    //         setError(data.error);
-    //       }
+    startTransition(() => {
+      login(values)
+        .then((data) => {
+          if (data?.error) {
+            form.reset();
+            setError(data.error);
+          }
 
-    //       if (data?.success) {
-    //         form.reset();
-    //         setSuccess(data.success);
-    //       }
-    //     })
-    //     .catch(() => setError("Erro ao fazer login"));
-    // });
+          if (data?.success) {
+            form.reset();
+            setSuccess(data.success);
+          }
+        })
+        .catch(() => setError("Erro ao fazer login"));
+    });
   };
 
   return (
     <CardWrapper
-      headerLabel="Entre ou cadastr-se"
+      headerLabel="Entre ou cadastre-se"
       backButtonLabel="Cadastre-se aqui!"
       backButtonHref="/auth/register"
     >
@@ -104,9 +103,7 @@ export const LoginForm = () => {
                       variant="link"
                       asChild
                       className="px-0 font-normal"
-                    >
-                      {/* <Link href="/auth/reset">Esqueceu a senha?</Link> */}
-                    </Button>
+                    ></Button>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -124,9 +121,3 @@ export const LoginForm = () => {
     </CardWrapper>
   );
 };
-
-// function zodResolver(
-//   LoginSchema: any
-// ): import("react-hook-form").Resolver<any, any> | undefined {
-//   throw new Error("Function not implemented.");
-// }
